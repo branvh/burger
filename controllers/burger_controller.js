@@ -1,38 +1,33 @@
-let express = require('express');
-var app = express.router();
-var burger = require('../models/burger.js');
+let burger = require('../models/burgers.js');
+let router = express.router();
 
-app.get('/', (req,res) => {
+//send all requests to the root back to /burger
+router.get('/', (req,res) => {
 	res.redirect('/burger');
 });
 
 //grab all burgers from DB for display to user
-app.get('/burger', (req,res) => {
-	burger.all(function(data){
-		var hbsObject = {burgers : data};
-		console.log(hbsObject);
-		res.render('index', hbsObject);
+router.get('/burger', (req,res) => {
+	burger.all( (data) => {
+		let burgersToDisplay = {burgers : data};
+		res.render('index', burgersToDisplay);
 	});
 });
 
 //add a new burger to the DB
-app.post('/burger/create', (req,res) => {
-
-	burger.create(['burger_name', 'devoured'], [req.body.name, req.body.devoured], function(data){
+router.post('/burger/create', (req,res) => {
+	burger.create(['burger_name', 'devoured'], [req.body.name, req.body.devoured], (info) => {
 		res.redirect('/burger');
 	});
 
 });
 
 //to update burger statuses - such as if "devoured"
-app.put('/burger/update/:id', function(req,res) {
-	var condition = 'id = ' + req.params.id;
-
-	console.log('condition', condition);
-
-	burger.update({'devoured' : req.body.devoured}, condition, function(data){
+router.put('/burger/update/:id', (req,res) => {
+	let item = 'id = ' + req.params.id;
+	burger.update({'devoured' : req.body.devoured}, item, (data) => {
 		res.redirect('/burger');
 	});
 });
 
-module.exports = app;
+module.exports = router;
